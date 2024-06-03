@@ -131,9 +131,3 @@ dist
 
 # exclude backend env
 backend/env/
-backend/__pycache__/
-
-# Exclude admin files
-_text-to-json.py
-tasks.txt
-ai-data.json

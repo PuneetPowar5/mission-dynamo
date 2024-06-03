@@ -1,75 +1,35 @@
-import React, { useState } from 'react';
-import axios from 'axios';
-import Flashcard from './Flashcard.jsx';
-import './Flashcard.css'
+import { useState } from 'react'
+import reactLogo from './assets/react.svg'
+import viteLogo from '/vite.svg'
+import './App.css'
 
 function App() {
-  const [youtubeLink, setYoutubeLink] = useState("");
-  const [keyConcepts, setKeyConcepts] = useState([]);
-
-  const handleLinkChange = (event) => {
-    setYoutubeLink(event.target.value);
-  };
-  
-  const sendLink = async () => {
-    try {
-      const response = await axios.post("http://localhost:8000/analyze_video", {
-        youtube_link: youtubeLink,
-      });
-      
-      const data = response.data;
-      if (data.key_concepts && Array.isArray(data.key_concepts)) {
-        const transformedConcepts = data.key_concepts.map(concept => {
-          const term = Object.keys(concept)[0];
-          const definition = concept[term];
-          return { term, definition }; 
-        });
-        setKeyConcepts(transformedConcepts);
-      }
-      else {
-        console.error("Data does not contain key concepts: ", data);
-        setKeyConcepts([]);
-      }
-
-    } catch (error) {
-      console.log(error);
-      setKeyConcepts([]);
-    }
-  };
-
-  const discardFlashcard = (index) => {
-    setKeyConcepts(currentConcepts => currentConcepts.filter((_, i) => i !== index));
-  }
+  const [count, setCount] = useState(0)
 
   return (
-    <div className="App">
-      <h1>Youtube Link to Flashcards Generator</h1>
-      <div className="inputContainer">
-        <input
-          type="text"
-          placeholder="Paste Youtube Link Here"
-          value={youtubeLink}
-          onChange={handleLinkChange}
-          className="inputField"
-        />
-        <button onClick={sendLink}>
-          Generate Flashcards
+    <>
+      <div>
+        <a href="https://vitejs.dev" target="_blank">
+          <img src={viteLogo} className="logo" alt="Vite logo" />
+        </a>
+        <a href="https://react.dev" target="_blank">
+          <img src={reactLogo} className="logo react" alt="React logo" />
+        </a>
+      </div>
+      <h1>Vite + React</h1>
+      <div className="card">
+        <button onClick={() => setCount((count) => count + 1)}>
+          count is {count}
         </button>
+        <p>
+          Edit <code>src/App.jsx</code> and save to test HMR
+        </p>
       </div>
-      
-      <div className="flashcardsContainer">
-        {keyConcepts.map((concept, index) => (
-          <Flashcard
-            key={index}
-            term={concept.term}
-            definition={concept.definition}
-            onDiscard={() => discardFlashcard(index)}
-          />
-        ))}
-      </div>
-
-    </div>
+      <p className="read-the-docs">
+        Click on the Vite and React logos to learn more
+      </p>
+    </>
   )
 }
 
-export default App;
+export default App
