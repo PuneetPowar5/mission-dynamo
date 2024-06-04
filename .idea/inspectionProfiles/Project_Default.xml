@@ -1,0 +1,24 @@
+<component name="InspectionProjectProfileManager">
+  <profile version="1.0">
+    <option name="myName" value="Project Default" />
+    <inspection_tool class="PyUnresolvedReferencesInspection" enabled="true" level="WARNING" enabled_by_default="true">
+      <option name="ignoredIdentifiers">
+        <list>
+          <option value="type.set_lose" />
+          <option value="type.set_win" />
+          <option value="type.set_player" />
+          <option value="type.set_push" />
+          <option value="type.set_stop" />
+          <option value="type.unset_push" />
+          <option value="type.unset_stop" />
+          <option value="type.unset_player" />
+          <option value="type.unset_win" />
+          <option value="type.unset_lose" />
+          <option value="a1starter.actor.Actor.player_move" />
+          <option value="a1starter.actor.Actor.word" />
+          <option value="a2starter.a2tree.QuadTreeNode.restore_from_preorder" />
+        </list>
+      </option>
+    </inspection_tool>
+  </profile>
+</component>
