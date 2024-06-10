@@ -5,16 +5,22 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="32be272b-9f09-4bc5-b202-3f635ee700ec" name="Changes" comment="">
+      <change afterPath="$PROJECT_DIR$/backend/services/__init__.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/backend/services/genai.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/backend/main.py" beforeDir="false" afterPath="$PROJECT_DIR$/backend/main.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/frontend/dynamocards/package-lock.json" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/dynamocards/package-lock.json" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/frontend/dynamocards/package.json" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/dynamocards/package.json" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/frontend/dynamocards/src/App.jsx" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/dynamocards/src/App.jsx" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
     <option name="LAST_RESOLUTION" value="IGNORE" />
+  </component>
+  <component name="FileTemplateManagerImpl">
+    <option name="RECENT_TEMPLATES">
+      <list>
+        <option value="Python Script" />
+      </list>
+    </option>
   </component>
   <component name="Git.Settings">
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
