@@ -5,6 +5,7 @@ from langchain_google_vertexai import VertexAI
 from langchain.prompts import PromptTemplate
 from langchain.chains.summarize import load_summarize_chain
 import logging
+from vertexai.generative_models import GenerativeModel
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
@@ -26,6 +27,12 @@ class GeminiProcessor:
         )
         return chain.run(documents)
 
+    def count_total_tokens(self, docs: list):
+        model = GenerativeModel("gemini-1.0-pro")
+        total = 0
+        for doc in tqdm(docs):
+            total += model.count_tokens(doc.page_content).total_billable_characters
+        return total
     def get_model(self):
         return self.model
 
@@ -47,15 +54,16 @@ class YoutubeProcessor:
         length = result[0].metadata['length']
         title = result[0].metadata['title']
         total_size = len(result)
+        total_billable_characters = self.GeminiProcessor.count_total_tokens(result)
 
         if verbose:
-            logger.info(f"{author}\n{length}\n{title}\n{total_size}")
+            logger.info(f"{author}\n{length}\n{title}\n{total_size}\n{total_billable_characters}")
 
         return result
 
-    def find_key_concepts(self, documents: list, group_size: int=2):
+    def find_key_concepts(self, documents: list, group_size: int=2, verbose=False):
         if group_size > len(documents):
-            raise ValueError("Group size can not be larger than the number of documents")
+            group_size=2
 
         num_docs_per_groups = len(documents) // group_size + (len(documents) % group_size > 0)
 
@@ -85,4 +93,23 @@ class YoutubeProcessor:
             concept = chain.invoke({"text": content})
 
             batch_concepts.append(concept)
+            batch_cost = 0
+
+            if verbose:
+                total_input_characters = len(content)
+                total_input_cost = (total_input_characters/1000) * 0.000125
+                logging.info(f"Running chain on {len(groups)} documents")
+                logging.info(f"Total Input Characters: {total_input_characters}")
+                logging.info(f"Total Cost: {total_input_cost}")
+
+                total_output_characters = len(concept)
+                total_output_cost = (total_output_characters/1000) * 0.000375
+
+                logging.info(f"Total Output Characters: {total_output_characters}")
+                logging.info(f"Total Cost: {total_output_cost}")
+
+                batch_cost += total_output_cost + total_input_cost
+                logging.info(f"Total Group Cost: {total_output_cost + total_input_cost}\n")
+
+        logging.info(f"Total Analysis Cost: ${batch_cost}")
         return batch_concepts
