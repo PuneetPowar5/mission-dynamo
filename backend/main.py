@@ -19,19 +19,21 @@ app.add_middleware(
 @app.post("/analyze_video")
 def analyze_video(request: VideoAnalysisRequest):
 
-    # Calling YouTube Processor class to extract video data and return data to
-    # back to the front end
-
-    processor = YoutubeProcessor()
-
-    result = processor.retrieve_youtube_documents(str(request.youtube_link), verbose=True)
-
     genai_processor = GeminiProcessor(
         model_name="gemini-pro",
         project="dynamo-425102",
 
     )
 
-    summary = genai_processor.generate_document_summary(result, verbose=True)
+    # Calling YouTube Processor class to extract video data and return data to
+    # back to the front end
 
-    return {"summary": summary}
+    processor = YoutubeProcessor(genai_processor=genai_processor)
+
+    result = processor.retrieve_youtube_documents(str(request.youtube_link), verbose=True)
+
+    # summary = genai_processor.generate_document_summary(result, verbose=True)
+
+    key_concepts = processor.find_key_concepts(result, group_size=2)
+
+    return {"key_concepts": key_concepts}
