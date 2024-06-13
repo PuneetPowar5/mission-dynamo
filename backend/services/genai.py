@@ -1,3 +1,5 @@
+import json
+
 from tqdm import tqdm
 from langchain_community.document_loaders import YoutubeLoader
 from langchain.text_splitter import RecursiveCharacterTextSplitter
@@ -61,11 +63,24 @@ class YoutubeProcessor:
 
         return result
 
-    def find_key_concepts(self, documents: list, group_size: int=2, verbose=False):
-        if group_size > len(documents):
-            group_size=2
+    def find_key_concepts(self, documents: list, sample_size: int=0, verbose=False):
+        if sample_size > len(documents):
+            raise ValueError("Group size can not be larger than the number of documents")
 
-        num_docs_per_groups = len(documents) // group_size + (len(documents) % group_size > 0)
+        if sample_size == 0:
+            sample_size = len(documents) // 5
+            if verbose:
+                logging.info("Sample Size not specified, setting number of documents per sample to 5")
+
+        num_docs_per_groups = len(documents) // sample_size + (len(documents) % sample_size > 0)
+
+        if num_docs_per_groups > 10:
+            raise ValueError("Each group is more than 10 documents, that makes the output quality degraded."
+                             "Please increase the sample size parameters")
+
+        elif num_docs_per_groups > 5:
+            logging.warn("Each group has 5 documents, this may degrade the quality of the output"
+                         "increase the sample size parameter if you would like more accurate results")
 
         groups = [documents[i: i+num_docs_per_groups] for i in range(0, len(documents), num_docs_per_groups)]
 
@@ -82,8 +97,8 @@ class YoutubeProcessor:
                 template = """
                 Find and Define key concepts or terms found in the text:
                 {text}
-                Respond in the following format as a string separating each concept with a coma:
-                "concept": "definition"
+                Respond in the following format as a JSON object without any backticks separating each concept with a coma:
+                {{"concept": "definition", "concept": "definition", ...}}
                 """,
                 input_variables=["text"]
             )
@@ -111,5 +126,7 @@ class YoutubeProcessor:
                 batch_cost += total_output_cost + total_input_cost
                 logging.info(f"Total Group Cost: {total_output_cost + total_input_cost}\n")
 
+        processed_concepts = [json.loads(i) for i in batch_concepts]
+
         logging.info(f"Total Analysis Cost: ${batch_cost}")
-        return batch_concepts
+        return processed_concepts
