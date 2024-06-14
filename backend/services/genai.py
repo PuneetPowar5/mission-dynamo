@@ -126,7 +126,12 @@ class YoutubeProcessor:
                 batch_cost += total_output_cost + total_input_cost
                 logging.info(f"Total Group Cost: {total_output_cost + total_input_cost}\n")
 
-        processed_concepts = [json.loads(i) for i in batch_concepts]
+        processed_concepts = []
+        for i in batch_concepts:
+            try:
+                processed_concepts.append(json.loads(i))
+            except json.JSONDecodeError as e:
+                print(f"Failed to decode JSON: {i} - {e}")
 
         logging.info(f"Total Analysis Cost: ${batch_cost}")
         return processed_concepts
