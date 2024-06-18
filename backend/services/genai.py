@@ -76,7 +76,7 @@ class YoutubeProcessor:
 
         if num_docs_per_groups > 10:
             raise ValueError("Each group is more than 10 documents, that makes the output quality degraded."
-                             "Please increase the sample size parameters")
+                             "Please increase the sample size parameter")
 
         elif num_docs_per_groups > 5:
             logging.warn("Each group has 5 documents, this may degrade the quality of the output"
@@ -105,33 +105,44 @@ class YoutubeProcessor:
 
             chain = prompt | self.GeminiProcessor.model
 
-            concept = chain.invoke({"text": content})
-
-            batch_concepts.append(concept)
-            batch_cost = 0
-
-            if verbose:
-                total_input_characters = len(content)
-                total_input_cost = (total_input_characters/1000) * 0.000125
-                logging.info(f"Running chain on {len(groups)} documents")
-                logging.info(f"Total Input Characters: {total_input_characters}")
-                logging.info(f"Total Cost: {total_input_cost}")
-
-                total_output_characters = len(concept)
-                total_output_cost = (total_output_characters/1000) * 0.000375
-
-                logging.info(f"Total Output Characters: {total_output_characters}")
-                logging.info(f"Total Cost: {total_output_cost}")
-
-                batch_cost += total_output_cost + total_input_cost
-                logging.info(f"Total Group Cost: {total_output_cost + total_input_cost}\n")
-
-        processed_concepts = []
-        for i in batch_concepts:
             try:
-                processed_concepts.append(json.loads(i))
-            except json.JSONDecodeError as e:
-                print(f"Failed to decode JSON: {i} - {e}")
+                concept = chain.invoke({"text": content})
+
+                batch_concepts.append(concept)
+                batch_cost = 0
+
+                if verbose:
+                    total_input_characters = len(content)
+                    total_input_cost = (total_input_characters / 1000) * 0.000125
+                    logging.info(f"Running chain on {len(groups)} documents")
+                    logging.info(f"Total Input Characters: {total_input_characters}")
+                    logging.info(f"Total Cost: {total_input_cost}")
+
+                    total_output_characters = len(concept)
+                    total_output_cost = (total_output_characters / 1000) * 0.000375
+
+                    logging.info(f"Total Output Characters: {total_output_characters}")
+                    logging.info(f"Total Cost: {total_output_cost}")
+
+                    batch_cost += total_output_cost + total_input_cost
+                    logging.info(f"Total Group Cost: {total_output_cost + total_input_cost}\n")
+
+            except Exception as e:
+                logging.error(f"Error processing chain: {e}")
+                continue
+
+        print(batch_concepts)
+
+        # processed_concepts = [json.loads(concept) for concept in batch_concepts]
+        processed_concepts = []
+        for concept in batch_concepts:
+            if concept.strip():  # Check if the string is not empty or just whitespace
+                try:
+                    processed_concepts.append(json.loads(concept))
+                except json.JSONDecodeError as e:
+                    print(f"Invalid JSON: {concept} - Error: {e}")
+            else:
+                print(f"Empty string encountered in batch_concepts: {concept}")
 
         logging.info(f"Total Analysis Cost: ${batch_cost}")
         return processed_concepts

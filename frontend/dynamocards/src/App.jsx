@@ -1,6 +1,7 @@
 import React, {useState} from 'react'
 import axios from 'axios'
 import Flashcard from './Flashcard';
+import './App.css';
 
 function App () {
     const [youtubeLink, setLink] = useState("");
@@ -16,9 +17,15 @@ function App () {
                 youtube_link: youtubeLink,
             });
             const data = response.data;
-            if(data.key_concepts && Array.isArray(data.key_concepts)){
-                setKeyConcepts(data.key_concepts);
-            }
+            if (data.key_concepts && Array.isArray(data.key_concepts)) {
+                const transformedConcepts = data.key_concepts.flatMap(concept => {
+                  return Object.entries(concept).map(([term, definition]) => ({
+                    term,
+                    definition
+                  }));
+                });
+                setKeyConcepts(transformedConcepts);
+              }
             else{
                 console.error("Data does not contain key concepts tag: ", data);
                 setKeyConcepts([]);
@@ -35,15 +42,15 @@ function App () {
 
   return (
     <div className='App'>
-        <h1>Youtube Link to Flashcards Generator</h1>
-        <input type='text' placeholder='Paste Youtube Link here' value={youtubeLink} onChange={handleLinkChange} />
+        <h1 className='title'>Youtube Link to Flashcards Generator</h1>
+        <input className='inputContainer' type='text' placeholder='Paste Youtube Link here' value={youtubeLink} onChange={handleLinkChange} />
         <button onClick={sendLink}>
             Generate Flashcards
         </button>
         <div className='flashcardContainer'>
-            {keyConcepts.map((concept, index) => {
-                <Flashcard key={index} term={concept.term} definition={concept.definition} onDiscard={() => discardFlashcard(index)}/>
-            })}
+        {keyConcepts.map((concept, index) => (
+    <Flashcard key={index} term={concept.term} definition={concept.definition} onDiscard={() => discardFlashcard(index)} />
+))}
         </div>
     </div>
   )
