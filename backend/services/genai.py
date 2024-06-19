@@ -1,5 +1,5 @@
 import json
-
+import re
 from tqdm import tqdm
 from langchain_community.document_loaders import YoutubeLoader
 from langchain.text_splitter import RecursiveCharacterTextSplitter
@@ -131,8 +131,6 @@ class YoutubeProcessor:
                 logging.error(f"Error processing chain: {e}")
                 continue
 
-        print(batch_concepts)
-
         # processed_concepts = [json.loads(concept) for concept in batch_concepts]
         processed_concepts = []
         for concept in batch_concepts:
@@ -140,9 +138,29 @@ class YoutubeProcessor:
                 try:
                     processed_concepts.append(json.loads(concept))
                 except json.JSONDecodeError as e:
-                    print(f"Invalid JSON: {concept} - Error: {e}")
+                    corrected_json = self.correct_invalid_json(concept)
+                    if corrected_json:
+                        processed_concepts.append(corrected_json)
+                    else:
+                        print(f"Invalid JSON: {concept} - Error: {e}")
             else:
                 print(f"Empty string encountered in batch_concepts: {concept}")
 
         logging.info(f"Total Analysis Cost: ${batch_cost}")
+        
         return processed_concepts
+
+    def correct_invalid_json(self, invalid_json_str):
+        # Remove backticks
+        invalid_json_str = invalid_json_str.replace('`', '')
+
+        # Extract the JSON portion using regular expression
+        json_match = re.search(r'\{.*\}', invalid_json_str, re.DOTALL)
+        if json_match:
+            json_str = json_match.group(0)
+            print("CORRECT STRING: " + json_str)
+            try:
+                return json.loads(json_str)
+            except json.JSONDecodeError:
+                return None
+        return None
